@@ -54,7 +54,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
-
+var echarts = require('echarts')
 export default {
   name: 'Login',
   data() {
@@ -74,8 +74,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: 'constantine',
+        password: 'admin123.'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
