@@ -14,3 +14,9 @@ export function todayOrders() {
     })
 }
 
+export function mothCountryOrders() {
+    return request({
+        url: '/orders/mothSales/country',
+        method: 'get'
+    })
+}

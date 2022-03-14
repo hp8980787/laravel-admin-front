@@ -43,7 +43,7 @@
     <el-col :md="8" :sm="12">
       <el-card class="box-card cart1">
         <div slot="header" class="clearfix">
-          <span style="display: inlineblock; float: left">今天销售金额:</span>
+          <span style="display: inlineblock; float: left">当月国家订单分布图:</span>
           <span
             style="color: #67c23a; display: inlineblock; float: right"
           ></span>
@@ -63,7 +63,7 @@
 import { mapGetters } from "vuex";
 import * as echarts from "echarts";
 import { todayOrders } from "@/api/order";
-import { options } from "runjs";
+import { mothCountryOrders } from "@/api/order";
 export default {
   name: "Dashboard",
   computed: {
@@ -81,6 +81,7 @@ export default {
       todayMostMoneyWeb: {},
       todayNumbers: 0,
       todayMostOrdersWeb: {},
+      MotnCountryStatistcs: [],
     };
   },
   methods: {
@@ -104,42 +105,47 @@ export default {
       });
     },
     ringInit() {
-      const ringChart = echarts.init(document.getElementById("ring"));
+      this.getMothCountryOrders();
+     mothCountryOrders().then((response) => {
+        if (response.code === 200) {
+          const data = response.data;
+          const res = [];
+          for (let i in data) {
+            res.push({
+              value: data[i].nums,
+              name: data[i].country,
+            });
+          }
+         const ringChart = echarts.init(document.getElementById("ring"));
       ringChart.setOption({
         title: {
-          text: "圆环图的例子",
+          text: "国家订单图",
           left: "center",
           top: "center",
         },
         series: [
           {
             type: "pie",
-            data: [
-              {
-                value: 335,
-                name: "A",
-              },
-              {
-                value: 234,
-                name: "B",
-              },
-              {
-                value: 1548,
-                name: "C",
-              },
-            ],
+            data: res,
             radius: ["40%", "70%"],
           },
         ],
       });
+        
+        }
+      });
+      
     },
-    async getTodayOrders() {
+    async  getTodayOrders() {
       const { data } = await todayOrders();
       const price = data.price;
       this.todaySales = data.price.total;
       this.todayMostMoneyWeb = data.price.web;
       this.todayNumbers = data.numbers.quantity;
       this.todayMostOrdersWeb = data.numbers.web;
+    },
+    getMothCountryOrders() {
+     
     },
   },
 };
