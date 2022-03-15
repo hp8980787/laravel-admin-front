@@ -97,6 +97,29 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
+    path:'/orders',
+    component: Layout,
+    redirect: '/orders/index',
+    name:'orders',
+    hidden: false,
+    alwaysShow: false,
+    meta:{
+      role: ['admin'] 
+    },
+   children:[
+     {
+       path:'index',
+       name:'orders.index',
+       component:()=>import('@/views/orders/index'),
+       meta:{
+        title:'订单中心',
+        icon:'order',
+        roles: ['admin1'] 
+       }
+     }
+   ]
+  },
+  {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',

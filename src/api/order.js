@@ -20,3 +20,12 @@ export function mothCountryOrders() {
         method: 'get'
     })
 }
+
+export function orderStatistic(data){
+    return request({
+        url:'/orders/statistic',
+        method:'get',
+        params:data
+       
+    })
+}

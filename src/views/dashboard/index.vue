@@ -43,7 +43,9 @@
     <el-col :md="8" :sm="12">
       <el-card class="box-card cart1">
         <div slot="header" class="clearfix">
-          <span style="display: inlineblock; float: left">当月国家订单分布图:</span>
+          <span style="display: inlineblock; float: left"
+            >当月国家订单分布图:</span
+          >
           <span
             style="color: #67c23a; display: inlineblock; float: right"
           ></span>
@@ -53,8 +55,11 @@
         </div>
       </el-card>
     </el-col>
-    <el-col :span="24">
-      <div id="main" style="width: 600px; height: 400px"></div>
+    <el-col v-loading="weekLoading" :md="12" :sm="24">
+      <div class="weekOrders" id="weekOrders"></div>
+    </el-col>
+    <el-col :md="12" :sm="24">
+      <div class="weekTotal" id="weekTotal"></div>
     </el-col>
   </el-row>
 </template>
@@ -64,15 +69,17 @@ import { mapGetters } from "vuex";
 import * as echarts from "echarts";
 import { todayOrders } from "@/api/order";
 import { mothCountryOrders } from "@/api/order";
+import { orderStatistic } from "@/api/order";
+
 export default {
   name: "Dashboard",
   computed: {
     ...mapGetters(["name", "roles"]),
   },
   mounted() {
-    this.echartsInit();
     this.getTodayOrders();
     this.ringInit();
+    this.orderWeekStatistic();
   },
   data() {
     return {
@@ -82,31 +89,12 @@ export default {
       todayNumbers: 0,
       todayMostOrdersWeb: {},
       MotnCountryStatistcs: [],
+      weekLoading: true,
     };
   },
   methods: {
-    echartsInit() {
-      const myChart = echarts.init(document.getElementById("main"));
-      // 绘制图表
-      myChart.setOption({
-        title: { text: "在Vue中使用echarts" },
-        tooltip: {},
-        xAxis: {
-          data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],
-        },
-        yAxis: {},
-        series: [
-          {
-            name: "销量",
-            type: "bar",
-            data: [5, 20, 36, 10, 10, 20],
-          },
-        ],
-      });
-    },
     ringInit() {
-      this.getMothCountryOrders();
-     mothCountryOrders().then((response) => {
+      mothCountryOrders().then((response) => {
         if (response.code === 200) {
           const data = response.data;
           const res = [];
@@ -116,27 +104,25 @@ export default {
               name: data[i].country,
             });
           }
-         const ringChart = echarts.init(document.getElementById("ring"));
-      ringChart.setOption({
-        title: {
-          text: "国家订单图",
-          left: "center",
-          top: "center",
-        },
-        series: [
-          {
-            type: "pie",
-            data: res,
-            radius: ["40%", "70%"],
-          },
-        ],
-      });
-        
+          const ringChart = echarts.init(document.getElementById("ring"));
+          ringChart.setOption({
+            title: {
+              text: "国家订单图",
+              left: "center",
+              top: "center",
+            },
+            series: [
+              {
+                type: "pie",
+                data: res,
+                radius: ["40%", "70%"],
+              },
+            ],
+          });
         }
       });
-      
     },
-    async  getTodayOrders() {
+    async getTodayOrders() {
       const { data } = await todayOrders();
       const price = data.price;
       this.todaySales = data.price.total;
@@ -144,8 +130,54 @@ export default {
       this.todayNumbers = data.numbers.quantity;
       this.todayMostOrdersWeb = data.numbers.web;
     },
-    getMothCountryOrders() {
-     
+    async orderWeekStatistic() {
+      const request = {
+        type: "week",
+      };
+      const { data } = await orderStatistic(request);
+      console.log(data);
+      let option = {
+        title: {
+          text: "一星期订单数量图",
+          left: "center",
+          top: "center",
+        },
+        xAxis: {
+          data: data.week,
+        },
+        yAxis: {},
+        series: [
+          {
+            data: data.orders,
+            type: "line",
+            smooth: true,
+          },
+        ],
+      };
+      const weekOrdersChart = echarts.init(
+        document.getElementById("weekOrders")
+      );
+      const weekTotalChart = echarts.init(document.getElementById("weekTotal"));
+      this.weekLoading = false;
+      weekOrdersChart.setOption(option);
+      weekTotalChart.setOption({
+        title: {
+          text: "一星期订单金额图",
+          left: "center",
+          top: "center",
+        },
+        xAxis: {
+          data: data.week,
+        },
+        yAxis: {},
+        series: [
+          {
+            data: data.total,
+            type: "line",
+            smooth: true,
+          },
+        ],
+      });
     },
   },
 };
@@ -163,5 +195,19 @@ export default {
 }
 .cart1 {
   margin: 5px;
+}
+@mixin echartsDiv {
+  width: 800px;
+  height: 400px;
+  @media (max-width: 480px) {
+    width: 400px;
+    height: 400px;
+  }
+}
+.weekOrders {
+  @include echartsDiv();
+}
+.weekTotal {
+  @include echartsDiv();
 }
 </style>
