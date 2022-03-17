@@ -97,6 +97,39 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
+    path:'/products',
+    component:Layout,
+    name:'products',
+    hidden:false,
+    alwaysShow: true,
+    meta:{
+      title:'产品中心',
+      icon:'product',
+      roles:['admin']
+    },children:[
+      {
+        name:'product.category',
+        path:'categories',
+        component:()=>import('@/views/products/categories/index'),
+        meta:{
+          title:'产品分类',
+          icon:'category',
+          roles:['admin']
+        }      
+      },{
+        name:'product.index',
+        path:'index',
+        component:()=>import('@/views/products/index'),
+        meta:{
+          title:'产品管理',
+          icon:'product',
+          roles:['admin']
+        }
+      }
+
+    ]
+  },
+  {
     path:'/orders',
     component: Layout,
     redirect: '/orders/statistic',
@@ -131,6 +164,7 @@ export const asyncRoutes = [
      }
    ]
   },
+
   // {
   //   path: '/nested',
   //   component: Layout,

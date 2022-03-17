@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function index() {
+export function index(data) {
     return request({
         url: '/orders',
         method: 'get',
+        params:data
     })
 }
 

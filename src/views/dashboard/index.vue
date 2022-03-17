@@ -1,67 +1,73 @@
 <template>
-  <el-row>
-    <el-col :md="8" :sm="12">
-      <el-card class="box-card cart1">
-        <div slot="header" class="clearfix">
-          <span style="display: inlineblock; float: left">今天销售金额:</span>
-          <span style="color: #67c23a; display: inlineblock; float: right"
-            >{{ todaySales }} $</span
+  <div class="container">
+    <el-row>
+      <el-col :md="8" :sm="12">
+        <el-card class="box-card cart1">
+          <div slot="header" class="clearfix">
+            <span style="display: inlineblock; float: left">今天销售金额:</span>
+            <span style="color: #67c23a; display: inlineblock; float: right"
+              >{{ todaySales }} $</span
+            >
+          </div>
+          <div
+            v-for="(item, key) in todayMostMoneyWeb"
+            :key="key"
+            class="text item"
+            style="margin: 5px 5px"
           >
-        </div>
-        <div
-          v-for="(item, key) in todayMostMoneyWeb"
-          :key="key"
-          class="text item"
-          style="margin: 5px 5px"
-        >
-          {{ key + 1 }}
-          <a :href="item.domain.url" target="_blank">{{ item.domain.url }}</a>
-          <el-tag type="success"> {{ item.total_usd }} $</el-tag>
-        </div>
-      </el-card>
-    </el-col>
-    <el-col :md="8" :sm="12">
-      <el-card class="box-card cart1">
-        <div slot="header" class="clearfix">
-          <span style="display: inlineblock; float: left">今天销售订单量:</span>
-          <span style="color: #67c23a; display: inlineblock; float: right"
-            >{{ todayNumbers }}
-          </span>
-        </div>
-        <div
-          v-for="(item, key) in todayMostOrdersWeb"
-          :key="key"
-          class="text item"
-          style="margin: 5px 5px"
-        >
-          {{ key + 1 }}
-          <a :href="item.domain.url" target="_blank">{{ item.domain.url }}</a>
-          <el-tag type="info"> {{ item.numbers }} </el-tag>
-        </div>
-      </el-card>
-    </el-col>
-    <el-col :md="8" :sm="12">
-      <el-card class="box-card cart1">
-        <div slot="header" class="clearfix">
-          <span style="display: inlineblock; float: left"
-            >当月国家订单分布图:</span
+            {{ key + 1 }}
+            <a :href="item.domain.url" target="_blank">{{ item.domain.url }}</a>
+            <el-tag type="success"> {{ item.total_usd }} $</el-tag>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :md="8" :sm="12">
+        <el-card class="box-card cart1">
+          <div slot="header" class="clearfix">
+            <span style="display: inlineblock; float: left"
+              >今天销售订单量:</span
+            >
+            <span style="color: #67c23a; display: inlineblock; float: right"
+              >{{ todayNumbers }}
+            </span>
+          </div>
+          <div
+            v-for="(item, key) in todayMostOrdersWeb"
+            :key="key"
+            class="text item"
+            style="margin: 5px 5px"
           >
-          <span
-            style="color: #67c23a; display: inlineblock; float: right"
-          ></span>
-        </div>
-        <div class="text item" style="margin: 5px 5px">
-          <div id="ring" style="width: 300px; height: 200px"></div>
-        </div>
-      </el-card>
-    </el-col>
-    <el-col v-loading="weekLoading" :md="12" :sm="24">
-      <div class="weekOrders" id="weekOrders"></div>
-    </el-col>
-    <el-col :md="12" :sm="24">
-      <div class="weekTotal" id="weekTotal"></div>
-    </el-col>
-  </el-row>
+            {{ key + 1 }}
+            <a :href="item.domain.url" target="_blank">{{ item.domain.url }}</a>
+            <el-tag type="info"> {{ item.numbers }} </el-tag>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :md="8" :sm="12">
+        <el-card class="box-card cart1">
+          <div slot="header" class="clearfix">
+            <span style="display: inlineblock; float: left"
+              >当月国家订单分布图:</span
+            >
+            <span
+              style="color: #67c23a; display: inlineblock; float: right"
+            ></span>
+          </div>
+          <div class="text item" style="margin: 5px 5px">
+            <div id="ring" style="width: 300px; height: 200px"></div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col v-loading="weekLoading" :md="24" :lg="12" :sm="24">
+        <div class="weekOrders" id="weekOrders"></div>
+      </el-col>
+      <el-col v-loading="weekLoading" :md="24" :lg="12" :sm="24">
+        <div class="weekTotal" id="weekTotal"></div>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script>
