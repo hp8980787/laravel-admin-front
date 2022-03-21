@@ -18,14 +18,14 @@ export function store(data) {
 
 export function update(data){
     return request({
-        url:'/products/categories',
+        url:`/products/category/${data.id}`,
         method:'put',
         data
     })
 }
 export function destroy(id){
     return request({
-        url:`/products/categories/${id}`,
+        url:`/products/category/${id}`,
         method:'delete',
     })
 }

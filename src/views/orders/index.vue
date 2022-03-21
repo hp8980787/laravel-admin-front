@@ -32,6 +32,22 @@
             </template>
           </el-table-column>
           <el-table-column prop="trans_id" label="Trans_ID"> </el-table-column>
+          <el-table-column prop="order_status" label="订单状态">
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.order_status === 0" type="waring"
+                >未发货</el-tag
+              >
+              <el-tag v-if="scope.row.order_status === 1" type="info"
+                >已采购</el-tag
+              >
+              <el-tag v-if="scope.row.order_status === 3" type="info"
+                >采购已完成未发货</el-tag
+              >
+              <el-tag v-if="scope.row.order_status == 4" type="success"
+                >已发货</el-tag
+              >
+            </template>
+          </el-table-column>
           <el-table-column prop="total" label="总价" show-overflow-tooltip>
           </el-table-column>
           <el-table-column
@@ -42,7 +58,8 @@
           </el-table-column>
           <el-table-column prop="ip" label="ip" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column fixed="right" label="操作" width="120">
+
+          <el-table-column fixed="right" label="操作" width="200">
             <template slot-scope="scope">
               <el-button
                 @click.native.prevent="deleteRow(scope.$index, tableData)"
@@ -51,6 +68,8 @@
               >
                 移除
               </el-button>
+              <el-button type="info" size="small">采购</el-button>
+              <el-button type="success" size="small">发货</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -109,7 +128,7 @@
 import { index } from "@/api/order";
 export default {
   name: "Index",
-    data() {
+  data() {
     return {
       tableData: [],
       tableLoading: true,
@@ -119,15 +138,15 @@ export default {
         links: {},
         meta: {},
       },
-      keyword:'',
+      keyword: "",
     };
   },
-  watch:{
-    keyword:function(newKeyword,oldKeyword){
-        if(oldKeyword!=newKeyword){
-          this.orders({keyword:this.keyword})
-        }
-    }
+  watch: {
+    keyword: function (newKeyword, oldKeyword) {
+      if (oldKeyword != newKeyword) {
+        this.orders({ keyword: this.keyword });
+      }
+    },
   },
   methods: {
     deleteRow(index, rows) {
