@@ -1,11 +1,10 @@
 import request from '@/utils/request'
-import { dataTool } from 'echarts';
 
 export function index(data) {
     return request({
         url: '/gross-orders',
         method: 'get',
-        params: dataTool,
+        params: data,
     });
 }
 
@@ -22,5 +21,28 @@ export function record(data) {
         url: '/gross-orders/record',
         method: 'post',
         data: { data },
+    })
+}
+
+export function itemsStore(data) {
+    return request({
+        url: '/order-items',
+        method: 'post',
+        data
+    })
+}
+
+export function itemsUpdate(data) {
+    return request({
+        url: `/order-items/${data['id']}`,
+        method: 'put',
+        data
+    })
+}
+
+export function itemsDelete(data) {
+    return request({
+        url: `/order-items/${data['id']}`,
+        method: 'delete'
     })
 }

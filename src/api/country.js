@@ -1,8 +1,8 @@
 import request from "@/utils/request"
 
-export function activeCountry(data) {
+export function index(data) {
     return request({
-        url: '/activeCountries',
+        url: '/countries',
         method: 'get',
         params: data
     })

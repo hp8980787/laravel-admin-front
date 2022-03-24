@@ -13,8 +13,15 @@
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange"
+          :default-expand-all="true"
         >
           <el-table-column type="selection" width="55"> </el-table-column>
+          <el-table-column type="expand" >
+            <template slot-scope="scope">
+              <TableExpand v-bind:itemsData="scope.row.items"></TableExpand>
+            </template>
+          </el-table-column>
+          <el-table-column label="id" prop="id"></el-table-column>
           <el-table-column label="网站">
             <template slot-scope="scope">{{ scope.row.domain.url }}</template>
           </el-table-column>
@@ -32,6 +39,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="trans_id" label="Trans_ID"> </el-table-column>
+          <el-table-column prop="pids" label="pids"> </el-table-column>
           <el-table-column prop="order_status" label="订单状态">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.order_status === 0" type="waring"
@@ -62,24 +70,14 @@
           <el-table-column fixed="right" label="操作" width="200">
             <template slot-scope="scope">
               <el-button
-                @click.native.prevent="deleteRow(scope.$index, tableData)"
-                type="text"
+                type="success"
                 size="small"
+                @click="orderShip(scope.row)"
+                >发货</el-button
               >
-                移除
-              </el-button>
-              <el-button type="info" size="small">采购</el-button>
-              <el-button type="success" size="small">发货</el-button>
             </template>
           </el-table-column>
         </el-table>
-
-        <div style="margin-top: 20px">
-          <el-button @click="toggleSelection([tableData[1], tableData[2]])"
-            >切换第二、第三行的选中状态</el-button
-          >
-          <el-button @click="toggleSelection()">取消选择</el-button>
-        </div>
         <el-dialog
           title="提示"
           :visible.sync="dialogVisible"
@@ -121,13 +119,20 @@
         </el-pagination>
       </el-col>
     </el-row>
+    <el-dialog title="采购" :visible.sync="purChaseDialogVisible">
+      <PurChaseDialog></PurChaseDialog>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { index } from "@/api/order";
+import * as OrderRequest from "@/api/order";
+import PurChaseDialog from "@/views/purchase/dialog.vue";
+import TableExpand from "@/components/TableExpland/order.vue";
 export default {
   name: "Index",
+  components: { PurChaseDialog, TableExpand },
   data() {
     return {
       tableData: [],
@@ -139,6 +144,7 @@ export default {
         meta: {},
       },
       keyword: "",
+      purChaseDialogVisible: false,
     };
   },
   watch: {
@@ -149,18 +155,6 @@ export default {
     },
   },
   methods: {
-    deleteRow(index, rows) {
-      rows.splice(index, 1);
-    },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach((row) => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
@@ -188,6 +182,14 @@ export default {
         this.pagination.links = data.links;
         this.pagination.meta = data.meta;
       });
+    },
+    orderShip(data) {
+      OrderRequest.ship(data).then((response) => {
+        console.log(response.data);
+      });
+    },
+    purchase() {
+      this.purChaseDialogVisible = true;
     },
   },
   mounted() {

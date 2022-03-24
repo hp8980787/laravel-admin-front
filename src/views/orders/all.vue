@@ -18,6 +18,35 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="55"> </el-table-column>
+          <el-table-column type="expand">
+            <template slot-scope="scope">
+              <el-table
+                size="mini"
+                v-if="scope.row.items"
+                :data="scope.row.items"
+              >
+                <el-table-column label="name" prop="name"></el-table-column>
+                <el-table-column
+                  label="产品id"
+                  prop="product_id"
+                ></el-table-column>
+                <el-table-column label="数量" prop="amount"></el-table-column>
+                <el-table-column label="价格" prop="price"></el-table-column>
+                <el-table-column
+                  label="时间"
+                  prop="created_at"
+                ></el-table-column>
+                <el-table-column label="操作">
+                  <template slot-scope="scope">
+                    <el-button @click="itemsEdit(scope.row)">edit</el-button>
+                    <el-button @click="orderItemsDelete(scope.row)"
+                      >delete</el-button
+                    >
+                  </template>
+                </el-table-column>
+              </el-table>
+            </template>
+          </el-table-column>
           <el-table-column label="id" prop="id" width="55"></el-table-column>
           <el-table-column label="网站">
             <template slot-scope="scope">{{ scope.row.domain.url }}</template>
@@ -35,54 +64,13 @@
               >
             </template>
           </el-table-column>
-          <el-table-column label="pids" width="200">
-            <template slot-scope="scope">
-              <el-row v-if="scope.row.pids">
-                <el-col :span="12">
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="scope.row.pids"
-                    placement="top"
-                  >
-                    <el-button size="small">{{ scope.row.pids }}</el-button>
-                  </el-tooltip>
-                </el-col>
-                <el-col :span="6">
-                  <el-button
-                    type="info"
-                    @click="scope.row.pids = ''"
-                    size="small"
-                    >edit</el-button
-                  ></el-col
-                >
-              </el-row>
-
-              <el-row v-else>
-                <el-col :span="12">
-                  <el-input
-                    size="mini"
-                    v-model="pcodes[scope.row.id]"
-                  ></el-input
-                ></el-col>
-                <el-col :span="6">
-                  <el-button
-                    type="success"
-                    size="small"
-                    v-on:click="savePcode(pcodes[scope.row.id], scope.row.id)"
-                    >save</el-button
-                  ></el-col
-                >
-              </el-row>
-            </template>
-          </el-table-column>
           <el-table-column prop="trans_id" label="Trans_ID"> </el-table-column>
           <el-table-column prop="order_status" label="订单状态">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.record_status === 0" type="waring"
                 >未录单</el-tag
               >
-              <el-tag v-else-if="scope.row.record_status === 1" type="info"
+              <el-tag v-else-if="scope.row.record_status === 1" type="success"
                 >已录单</el-tag
               >
             </template>
@@ -107,7 +95,12 @@
               >
                 移除
               </el-button>
-              <el-button size="small" type="info"> 填入pcode </el-button>
+              <el-button
+                size="small"
+                type="info"
+                @click="itemsFormInit(scope.row)"
+                >填入子项</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -143,6 +136,52 @@
             >
           </span>
         </el-dialog>
+        <el-dialog
+          :title="itemsTitle + '子项'"
+          :visible.sync="itemsDialogVisible"
+          center=""
+        >
+          <el-form
+            :model="itemsForm"
+            ref="itemsForm"
+            class="demo-form-inline"
+            widdth="100%"
+          >
+            <el-form-item label="name" label-width="80px">
+              <el-input v-model="itemsForm.name" placeholder="name"></el-input>
+            </el-form-item>
+            <el-form-item label="产品pid" label-width="80px">
+              <el-input
+                v-model="itemsForm.product_id"
+                placeholder="product_id"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="price" label-width="80px">
+              <el-input
+                v-model="itemsForm.price"
+                placeholder="price"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="数量" label-width="80px">
+              <el-input
+                v-model="itemsForm.amount"
+                placeholder="数量 "
+              ></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="itemsDialogVisible = false">取 消</el-button>
+            <el-button
+              type="primary"
+              v-if="itemsType === 'add'"
+              @click="orderItemsStore()"
+              >确 定</el-button
+            >
+            <el-button type="primary" v-else @click="orderItemsUpdate()"
+              >确 定</el-button
+            >
+          </span>
+        </el-dialog>
         <el-backtop target=".filter-container"></el-backtop>
       </div>
     </el-row>
@@ -165,7 +204,10 @@
 <script>
 import { index } from "@/api/grossOrder";
 import { update } from "@/api/grossOrder";
-import {record} from "@/api/grossOrder"
+import { record } from "@/api/grossOrder";
+import { itemsStore } from "@/api/grossOrder";
+import { itemsUpdate } from "@/api/grossOrder";
+import { itemsDelete } from "@/api/grossOrder";
 export default {
   name: "All",
   data() {
@@ -179,7 +221,10 @@ export default {
         meta: {},
       },
       keyword: "",
-      pcodes: {},
+      itemsDialogVisible: false,
+      itemsForm: {},
+      itemsType: "add",
+      itemsTitle: "新增",
     };
   },
   watch: {
@@ -230,48 +275,78 @@ export default {
         this.pagination.meta = data.meta;
       });
     },
-    savePcode(data, id) {
-      if (data) {
-        update({ id: id, pids: data })
-          .then((response) => {
-            this.$message({
-              type: "success",
-              message: "修改成功",
-            });
-          })
-          .catch((err) => {
+    recordOrders() {
+      const rows = this.$refs.multipleTable.selection;
+      console.log(rows);
+      if (rows.length>0) {
+        for (let i in rows) {
+          if (!rows[i].items.length>0) {
             this.$message({
               type: "error",
-              message: "修改失败",
+              message: "请填写pids",
             });
-          });
-      } else {
-        this.$message({
-          type: "error",
-          message: "不能为空",
-        });
-      }
-    },
-    recordOrders() {
-        const rows =this.$refs.multipleTable.selection
-        for(let i in rows){
-            if(!rows[i].pids){
-                this.$message({
-                    type:'error',
-                    message:'请填写pids'
-                });
-                break;
-            }
+            return  false;
+          }
         }
-       record(rows).then(response=>{
-           if(response.code===200){
-               this.$message({
-                   type:'success',
-                   message:'添加成功!'
-               })
-           }
-       })
-   
+        record(rows).then((response) => {
+          if (response.code === 200) {
+            this.orders();
+            this.$message({
+              type: "success",
+              message: "添加成功!",
+            });
+          }
+        });
+      }else{
+         this.$message({
+              type: "error",
+              message: "请选择一列",
+            });
+      }
+       
+    },
+    itemsFormInit(row) {
+      this.itemsDialogVisible = true;
+      this.itemsForm = {};
+      this.itemsForm.order_id = row.id;
+      this.itemsType = "add";
+      this.itemsTitle = "新增";
+    },
+    orderItemsStore() {
+      itemsStore(this.itemsForm).then((resposne) => {
+        this.$message({
+          type: "success",
+          message: "添加成功!",
+        });
+        this.orders();
+        this.itemsDialogVisible = false;
+      });
+    },
+    itemsEdit(data) {
+      this.itemsType = "edit";
+      this.itemsTitle = "修改";
+      this.itemsDialogVisible = true;
+      this.itemsForm = data;
+    },
+    orderItemsUpdate() {
+      itemsUpdate(this.itemsForm).then((resposne) => {
+        this.$message({
+          type: "success",
+          message: "添加成功!",
+        });
+        this.orders();
+        this.itemsDialogVisible = false;
+      });
+    },
+    orderItemsDelete(data) {
+      itemsDelete(data).then((response) => {
+        this.$message({
+          type: "success",
+          message: "删除成功!",
+        });
+        this.orders();
+        this.itemsDialogVisible = false;
+      });
     },
   },
   mounted() {
