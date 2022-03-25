@@ -119,9 +119,7 @@
         </el-pagination>
       </el-col>
     </el-row>
-    <el-dialog title="采购" :visible.sync="purChaseDialogVisible">
-      <PurChaseDialog></PurChaseDialog>
-    </el-dialog>
+ 
   </div>
 </template>
 
@@ -129,10 +127,10 @@
 import { index } from "@/api/order";
 import * as OrderRequest from "@/api/order";
 import PurChaseDialog from "@/views/purchase/dialog.vue";
-import TableExpand from "@/components/TableExpland/order.vue";
+import TableExpand from "@/views/orders/TableExpland/order.vue";
 export default {
   name: "Index",
-  components: { PurChaseDialog, TableExpand },
+  components: { TableExpand },
   data() {
     return {
       tableData: [],
