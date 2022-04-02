@@ -9,8 +9,8 @@
         <el-table-column label="时间" prop="created_at"></el-table-column>
         <el-table-column label="状态" prop="status">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status === 1" type="success">有货</el-tag>
-            <el-tag v-else type="danger">需要采购</el-tag>
+            
+            <el-tag  :type="scope.row.status_type">{{ scope.row.status_text }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作">

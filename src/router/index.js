@@ -98,56 +98,6 @@ export const constantRoutes = [{
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [{
-        path: '/purchase',
-        component: Layout,
-        name: 'purchase',
-        hidden: false,
-        alwaysShow: true,
-        meta: {
-            title: '采购中心',
-            icon: 'purchase',
-            roles: ['admin']
-        },
-        children: [{
-            name: 'purchase.index',
-            path: 'index',
-            meta: {
-                title: '采购管理',
-                icon: 'purchase',
-            },
-            component: () =>
-                import ("@/views/purchase/index")
-        }, {
-            name: 'purchase.supplier',
-            path: 'supplier',
-            component: () =>
-                import ("@/views/purchase/supplier/index"),
-            meta: {
-                title: "供应商管理",
-                icon: "supplier",
-            }
-        }]
-
-    }, {
-        path: '/storehouse',
-        name: 'storehouse',
-        component: Layout,
-        hidden: false,
-        // alwaysShow: true,
-        redirect: '/storehouse/index',
-        children: [{
-            name: 'storehouse.index',
-            path: 'index',
-            component: () =>
-                import ("@/views/storehouse/index"),
-            meta: {
-                title: '仓储中心',
-                icon: 'storehouse',
-                roles: ['admin']
-            },
-
-        }]
-    }, {
         path: '/products',
         component: Layout,
         name: 'products',
@@ -225,6 +175,73 @@ export const asyncRoutes = [{
                 icon: 'list',
                 roles: ['admin']
 
+            }
+        }]
+    }, {
+        path: '/purchase',
+        component: Layout,
+        name: 'purchase',
+        hidden: false,
+        alwaysShow: true,
+        meta: {
+            title: '采购中心',
+            icon: 'purchase',
+            roles: ['admin']
+        },
+        children: [{
+            name: 'purchase.index',
+            path: 'index',
+            meta: {
+                title: '采购管理',
+                icon: 'purchase',
+            },
+            component: () =>
+                import ("@/views/purchase/index")
+        }, {
+            name: 'purchase.supplier',
+            path: 'supplier',
+            component: () =>
+                import ("@/views/purchase/supplier/index"),
+            meta: {
+                title: "供应商管理",
+                icon: "supplier",
+            }
+        }]
+
+    }, {
+        path: '/storehouse',
+        name: 'storehouse',
+        component: Layout,
+        hidden: false,
+        // alwaysShow: true,
+        redirect: '/storehouse/index',
+        children: [{
+            name: 'storehouse.index',
+            path: 'index',
+            component: () =>
+                import ("@/views/storehouse/index"),
+            meta: {
+                title: '仓储中心',
+                icon: 'storehouse',
+                roles: ['admin']
+            },
+
+        }]
+    }, {
+        path: '/ship',
+        name: 'ship',
+        component: Layout,
+        hidden: false,
+        redirect: '/ship/index',
+        children: [{
+            name: 'ship.index',
+            path: 'index',
+            component: () =>
+                import ("@/views/ship/index"),
+            meta: {
+                title: '物流中心',
+                icon: 'wuliu',
+                roles: ['admin']
             }
         }]
     },

@@ -13,10 +13,10 @@
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange"
-          :default-expand-all="true"
+          :default-expand-all="false"
         >
           <el-table-column type="selection" width="55"> </el-table-column>
-          <el-table-column type="expand" >
+          <el-table-column type="expand">
             <template slot-scope="scope">
               <TableExpand v-bind:itemsData="scope.row.items"></TableExpand>
             </template>
@@ -42,18 +42,9 @@
           <el-table-column prop="pids" label="pids"> </el-table-column>
           <el-table-column prop="order_status" label="订单状态">
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.order_status === 0" type="waring"
-                >未发货</el-tag
-              >
-              <el-tag v-if="scope.row.order_status === 1" type="info"
-                >已采购</el-tag
-              >
-              <el-tag v-if="scope.row.order_status === 3" type="info"
-                >采购已完成未发货</el-tag
-              >
-              <el-tag v-if="scope.row.order_status == 4" type="success"
-                >已发货</el-tag
-              >
+              <el-tag :type="scope.row.order_status_tag">{{
+                scope.row.order_status_text
+              }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="total" label="总价" show-overflow-tooltip>
@@ -69,7 +60,16 @@
 
           <el-table-column fixed="right" label="操作" width="200">
             <template slot-scope="scope">
-              <el-button
+              <!-- <el-button
+                v-if="scope.row.order_status===3||scope.row.order_status===0"
+                type="success"
+                size="small"
+                @click="orderShip(scope.row)"
+                >发货</el-button
+              >
+              <el-button v-else-if="scope.row.order_status===4">查看物流</el-button> -->
+               <el-button
+              
                 type="success"
                 size="small"
                 @click="orderShip(scope.row)"
@@ -118,8 +118,8 @@
         >
         </el-pagination>
       </el-col>
+      <ShipDialog v-if="orderData.id" :shipVisble.sync="shipDialogVisble" :orderData="orderData"></ShipDialog>
     </el-row>
- 
   </div>
 </template>
 
@@ -128,14 +128,16 @@ import { index } from "@/api/order";
 import * as OrderRequest from "@/api/order";
 import PurChaseDialog from "@/views/purchase/dialog.vue";
 import TableExpand from "@/views/orders/TableExpland/order.vue";
+import ShipDialog from "@/views/ship/dialog/index.vue";
 export default {
   name: "Index",
-  components: { TableExpand },
+  components: { TableExpand, ShipDialog },
   data() {
     return {
       tableData: [],
       tableLoading: true,
       dialogVisible: false,
+      orderData: {},
       userInfo: {},
       pagination: {
         links: {},
@@ -143,6 +145,7 @@ export default {
       },
       keyword: "",
       purChaseDialogVisible: false,
+      shipDialogVisble: false,
     };
   },
   watch: {
@@ -182,8 +185,12 @@ export default {
       });
     },
     orderShip(data) {
+      this.orderData = data;
       OrderRequest.ship(data).then((response) => {
-        console.log(response.data);
+        if (response.code === 200) {
+          this.shipDialogVisble = true;
+          console.log(response);
+        }
       });
     },
     purchase() {
